@@ -75,6 +75,14 @@ public abstract class Crawler {
         if (qmIndex > 0) {
             referURL = referURL.substring(0, qmIndex);
         }
-        return referURL + nextPage.eq(0).attr("href");
+        String href = nextPage.eq(0).attr("href");
+        switch (href.charAt(0)) {
+            case '?':
+                return referURL + href;
+            case '/':
+                return referURL.substring(0, referURL.indexOf('/', "http://".length())) + href;
+        }
+        throw new IllegalArgumentException("unknown href" + href);
     }
+
 }
