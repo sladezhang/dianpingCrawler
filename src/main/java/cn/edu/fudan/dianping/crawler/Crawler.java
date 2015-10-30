@@ -30,6 +30,7 @@ public abstract class Crawler {
 
                 try {
                     Response response = connection(nextUrl, Cookie.cookie()).execute();
+
                     Document document;
                     if (Cookie.cookie() == null) {
                         Cookie.cookie(response.cookies());
@@ -39,6 +40,7 @@ public abstract class Crawler {
                     nextUrl = nextUrl(nextUrl, document.select(nextUrlSelector));
                     break;
                 } catch (IOException e) {
+                    Cookie.clearCookie();
                     timeToSleepMilli = sleep(timeToSleepMilli);
                 }
             }

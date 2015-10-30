@@ -16,4 +16,8 @@ public class Cookie {
         Cookie.cookie = cookie;
         System.out.println("Set Cookie:" + cookie);
     }
+
+    public static void clearCookie(){
+        cookie = null;
+    }
 }
