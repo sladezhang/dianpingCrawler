@@ -26,8 +26,7 @@ public abstract class Crawler {
         do {
             long timeToSleepMilli = 1000;
             while (true) {
-                System.out.print(nextUrl);
-
+                System.out.printf("fetch:%s, refer:%s\t", nextUrl, referUrl);
                 try {
                     Response response = connection(nextUrl, referUrl).execute();
                     Cookie.cookie(response.cookies());
@@ -35,10 +34,10 @@ public abstract class Crawler {
                     parseDocument(nextUrl, document);
                     referUrl = nextUrl;
                     nextUrl = nextUrl(nextUrl, document.select(nextUrlSelector));
-                    System.out.println();
+                    System.out.println("succeed!");
                     break;
                 } catch (IOException e) {
-                    System.out.println('\t' + e.getMessage());
+                    System.out.println(e.getMessage());
                     Cookie.clearCookie();
                     timeToSleepMilli = sleep(timeToSleepMilli);
                 }
