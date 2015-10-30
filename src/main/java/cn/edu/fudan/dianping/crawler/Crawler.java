@@ -24,7 +24,7 @@ public abstract class Crawler {
     public void crawl(String nextUrl) {
         String referUrl = null;
         do {
-            long timeToSleepMilli = 1000;
+            long timeToSleep = 1;
             while (true) {
                 System.out.printf("fetch:%s, refer:%s\t", nextUrl, referUrl);
                 try {
@@ -39,7 +39,7 @@ public abstract class Crawler {
                 } catch (IOException e) {
                     System.out.println(e.getMessage());
                     Cookie.clearCookie();
-                    timeToSleepMilli = sleep(timeToSleepMilli);
+                    timeToSleep = sleep(timeToSleep);
                 }
             }
         } while (nextUrl != null);
@@ -68,10 +68,10 @@ public abstract class Crawler {
 
     private long sleep(long time) {
         try {
-            Thread.sleep(time);
+            Thread.sleep(time * 1000);
         } catch (InterruptedException ignored) {
         }
-        long nextSleepTime = (long) (Math.log(time) / Math.log(3) * 20 * (1 + Math.random()));
+        long nextSleepTime = (long) (Math.log(time + 1) * (1 + Math.random()) / Math.log(3) * 20);
         System.out.printf("sleep:%d\t", nextSleepTime);
         return nextSleepTime;
     }

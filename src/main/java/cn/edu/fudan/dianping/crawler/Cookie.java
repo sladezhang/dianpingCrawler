@@ -14,11 +14,9 @@ public class Cookie {
 
     public static void cookie(Map<String, String> cookie) {
         Cookie.cookie = cookie;
-        System.out.println("Set Cookie:" + cookie);
     }
 
     public static void clearCookie(){
         cookie = null;
-        System.out.println("Clear Cookie");
     }
 }
