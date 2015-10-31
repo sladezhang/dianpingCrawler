@@ -71,13 +71,12 @@ public abstract class Crawler {
     }
 
     private long sleep(long time) {
-        long nextSleepTime = (long) (Math.log(time + 1) * (1 + Math.random()) / Math.log(3) * 20);
-        System.out.printf("sleep:%d\t", nextSleepTime);
+        System.out.printf("sleep:%d\t", time);
         try {
             Thread.sleep(time * 1000);
         } catch (InterruptedException ignored) {
         }
-        return nextSleepTime;
+        return (long) (Math.log(time + 1) * (1 + Math.random()) / Math.log(3) * 20);
     }
 
     private String nextUrl(String referURL, Elements nextPage) {
