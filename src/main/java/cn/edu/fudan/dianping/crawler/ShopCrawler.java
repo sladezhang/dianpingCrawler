@@ -19,7 +19,9 @@ public class ShopCrawler extends Crawler {
     }
 
     public static void main(String[] args) {
-        new ShopCrawler(new File("data/shanghai")).crawl("http://www.dianping.com/search/category/1/10/p11");
+        System.setProperty("http.proxyHost", "127.0.0.1");
+        System.setProperty("http.proxyPort", "8087");
+        new ShopCrawler(new File("data/beijing")).crawl("http://www.dianping.com/search/category/2/10");
     }
 
     @Override
