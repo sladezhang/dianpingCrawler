@@ -1,7 +1,8 @@
 package cn.edu.fudan.dianping.bean;
 
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
+import com.gargoylesoftware.htmlunit.html.HtmlElement;
+
+import java.util.List;
 
 /**
  * Created by Dawnwords on 2015/10/23.
@@ -11,51 +12,51 @@ public class Comment implements Outputable {
     private int total, taste, environment, service;
     private String content;
 
-    public Comment(Element jsoupElement) {
-        if (jsoupElement == null) {
+    public Comment(HtmlElement htmlElement) {
+        if (htmlElement == null) {
             throw new NullPointerException("comment element is null");
         }
-        setUserId(jsoupElement);
-        setUserName(jsoupElement);
-        setScore(jsoupElement);
-        setTotal(jsoupElement);
-        setContent(jsoupElement);
+        setUserId(htmlElement);
+        setUserName(htmlElement);
+        setScore(htmlElement);
+        setTotal(htmlElement);
+        setContent(htmlElement);
     }
 
-    private void setContent(Element jsoupElement) {
-        Elements select = jsoupElement.select(".J_brief-cont");
-        if (select.size() > 0) {
-            this.content = select.eq(0).text();
+    private void setContent(HtmlElement htmlElement) {
+        HtmlElement element = htmlElement.getFirstByXPath("//div[class='J_brief-cont']");
+        if (element != null) {
+            this.content = element.getTextContent();
         }
     }
 
-    private void setTotal(Element jsoupElement) {
-        Elements select = jsoupElement.select(".item-rank-rst");
-        if (select.size() > 0) {
-            this.total = toScore(select.eq(0).attr("title"));
+    private void setTotal(HtmlElement htmlElement) {
+        HtmlElement element = htmlElement.getFirstByXPath("//span[contains(@class,'item-rank-rst')]");
+        if (element != null) {
+            this.total = toScore(element.getTextContent());
         }
     }
 
-    private void setScore(Element jsoupElement) {
-        Elements select = jsoupElement.select(".col-exp");
-        if (select.size() > 2) {
-            this.taste = toScore(select.eq(0).text());
-            this.environment = toScore(select.eq(1).text());
-            this.service = toScore(select.eq(2).text());
+    private void setScore(HtmlElement htmlElement) {
+        List<HtmlElement> elements = (List<HtmlElement>) htmlElement.getByXPath("//em[class='col-exp']");
+        if (elements.size() > 2) {
+            this.taste = toScore(elements.get(0).getTextContent());
+            this.environment = toScore(elements.get(1).getTextContent());
+            this.service = toScore(elements.get(2).getTextContent());
         }
     }
 
-    private void setUserName(Element jsoupElement) {
-        Elements select = jsoupElement.select(".name a");
-        if (select.size() > 0) {
-            this.userName = select.eq(0).text();
+    private void setUserName(HtmlElement htmlElement) {
+        HtmlElement element = htmlElement.getFirstByXPath("//p[class='name']/a");
+        if (element != null) {
+            this.userName = element.getTextContent();
         }
     }
 
-    private void setUserId(Element jsoupElement) {
-        Elements select = jsoupElement.select(".J_card");
-        if (select.size() > 0) {
-            this.userId = select.eq(0).attr("user-id");
+    private void setUserId(HtmlElement htmlElement) {
+        HtmlElement element = htmlElement.getFirstByXPath("//a[class='J_card']");
+        if (element != null) {
+            this.userId = element.getAttribute("user-id");
         }
     }
 
@@ -83,12 +84,12 @@ public class Comment implements Outputable {
 
     @Override
     public String output() {
-        return userId + seperator +
-                userName + seperator +
-                total + seperator +
-                taste + seperator +
-                environment + seperator +
-                service + seperator +
+        return userId + separator +
+                userName + separator +
+                total + separator +
+                taste + separator +
+                environment + separator +
+                service + separator +
                 content;
     }
 }

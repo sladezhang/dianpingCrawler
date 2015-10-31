@@ -3,8 +3,10 @@ package cn.edu.fudan.dianping.crawler;
 import cn.edu.fudan.dianping.bean.Comment;
 import cn.edu.fudan.dianping.handler.CommentHandler;
 import cn.edu.fudan.dianping.handler.PrintCommentHandler;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
+import com.gargoylesoftware.htmlunit.html.HtmlElement;
+import com.gargoylesoftware.htmlunit.html.HtmlPage;
+
+import java.util.List;
 
 /**
  * Created by Dawnwords on 2015/10/30.
@@ -23,9 +25,11 @@ public class CommentCrawler extends Crawler {
     }
 
     @Override
-    protected void parseDocument(String referURL, Document document) {
-        for (Element element : document.select(".comment-list > ul > li")) {
-            handler.handle(new Comment(element));
+    protected void parseDocument(HtmlPage page) {
+        List<HtmlElement> lis = (List<HtmlElement>) page.getByXPath("//div[@class='comment-list')]/ul/li");
+        for (HtmlElement li : lis) {
+            handler.handle(new Comment(li));
         }
+
     }
 }

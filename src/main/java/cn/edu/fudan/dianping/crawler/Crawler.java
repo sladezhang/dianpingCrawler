@@ -1,10 +1,8 @@
 package cn.edu.fudan.dianping.crawler;
 
-import org.jsoup.Connection;
-import org.jsoup.Connection.Response;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.select.Elements;
+import com.gargoylesoftware.htmlunit.WebClient;
+import com.gargoylesoftware.htmlunit.html.HtmlAnchor;
+import com.gargoylesoftware.htmlunit.html.HtmlPage;
 
 import java.io.IOException;
 
@@ -15,59 +13,47 @@ public abstract class Crawler {
 
     private String nextUrlSelector;
 
-
     public Crawler(String nextUrlSelector) {
         this.nextUrlSelector = nextUrlSelector;
     }
 
-
-    public void crawl(String nextUrl) {
-        String referUrl = null;
+    public void crawl(String startUrl) {
+        boolean hasNextUrl;
         boolean error = false;
+        WebClient client = client();
         do {
             long timeToSleep = 1;
+            hasNextUrl = false;
             while (true) {
                 try {
-                    Response response = connection(nextUrl, referUrl).execute();
-                    Cookie.cookie(response.cookies());
-                    Document document = response.parse();
-                    parseDocument(nextUrl, document);
-                    referUrl = nextUrl;
-                    nextUrl = nextUrl(nextUrl, document.select(nextUrlSelector));
+                    HtmlPage page = client.getPage(startUrl);
+                    parseDocument(page);
+                    HtmlAnchor nextPage = page.getFirstByXPath(nextUrlSelector);
+                    if (nextPage != null) {
+                        hasNextUrl = true;
+                        nextPage.click();
+                    }
                     if (error) {
                         System.out.println("\n--------------------------");
                         error = false;
                     }
                     break;
                 } catch (IOException e) {
-                    System.out.printf("fetch:%s\t%s\n", nextUrl, e.getMessage());
+                    System.out.printf("fetch:%s\t%s\n", startUrl, e.getMessage());
                     error = true;
-                    Cookie.clearCookie();
+                    client.getCookieManager().clearCookies();
                     timeToSleep = sleep(timeToSleep);
                 }
             }
-        } while (nextUrl != null);
+        } while (hasNextUrl);
     }
 
-    protected abstract void parseDocument(String referURL, Document document);
+    protected abstract void parseDocument(HtmlPage page);
 
-    private Connection connection(String commentUrl, String referUrl) {
-        Connection connection = Jsoup.connect(commentUrl)
-                .timeout(30 * 1000)
-                .header("Upgrade-Insecure-Requests", "1")
-                .header("pragma", "no-cache")
-                .header("cache-control", "no-cache")
-                .header("Accept-Language", "en-US,en;q=0.8,zh-CN;q=0.6,zh;q=0.4")
-                .header("Accept-Encoding", "gzip, deflate, sdch")
-                .header("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8")
-                .userAgent("Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/45.0.2454.101 Safari/537.36");
-        if (referUrl != null) {
-            connection.header("Referer", referUrl);
-        }
-        if (Cookie.cookie() != null) {
-            connection = connection.cookies(Cookie.cookie());
-        }
-        return connection;
+    private WebClient client() {
+        WebClient client = new WebClient();
+        client.setJavaScriptTimeout(0);
+        return client;
     }
 
     private long sleep(long time) {
@@ -79,23 +65,4 @@ public abstract class Crawler {
         }
         return nextSleepTime;
     }
-
-    private String nextUrl(String referURL, Elements nextPage) {
-        if (nextPage.size() <= 0) {
-            return null;
-        }
-        int qmIndex = referURL.indexOf('?');
-        if (qmIndex > 0) {
-            referURL = referURL.substring(0, qmIndex);
-        }
-        String href = nextPage.eq(0).attr("href");
-        switch (href.charAt(0)) {
-            case '?':
-                return referURL + href;
-            case '/':
-                return referURL.substring(0, referURL.indexOf('/', "http://".length())) + href;
-        }
-        throw new IllegalArgumentException("unknown href" + href);
-    }
-
 }

@@ -1,7 +1,8 @@
 package cn.edu.fudan.dianping.bean;
 
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
+import com.gargoylesoftware.htmlunit.html.HtmlElement;
+
+import java.util.List;
 
 /**
  * Created by Dawnwords on 2015/10/30.
@@ -11,60 +12,60 @@ public class Shop implements Outputable {
     private double taste, environment, service;
     private int totalComment, avgPay;
 
-    public Shop(Element jsoupElement) {
-        if (jsoupElement == null) {
+    public Shop(HtmlElement htmlElement) {
+        if (htmlElement == null) {
             throw new NullPointerException("comment element is null");
         }
-        setId(jsoupElement);
-        setName(jsoupElement);
-        setTypeLocation(jsoupElement);
-        setScore(jsoupElement);
-        setTotalComment(jsoupElement);
-        setAvgPay(jsoupElement);
+        setId(htmlElement);
+        setName(htmlElement);
+        setTypeLocation(htmlElement);
+        setScore(htmlElement);
+        setTotalComment(htmlElement);
+        setAvgPay(htmlElement);
     }
 
-    private void setAvgPay(Element jsoupElement) {
-        Elements select = jsoupElement.select(".mean-price b");
-        if (select.size() > 0) {
-            this.avgPay = Integer.parseInt(select.eq(0).text().substring(1));
+    private void setAvgPay(HtmlElement htmlElement) {
+        HtmlElement element = htmlElement.getFirstByXPath("//a[class='mean-price']/b");
+        if (element != null) {
+            this.avgPay = Integer.parseInt(element.getTextContent().substring(1));
         }
     }
 
-    private void setTotalComment(Element jsoupElement) {
-        Elements select = jsoupElement.select(".review-num b");
-        if (select.size() > 0) {
-            this.totalComment = Integer.parseInt(select.eq(0).text());
+    private void setTotalComment(HtmlElement htmlElement) {
+        HtmlElement element = htmlElement.getFirstByXPath("//a[class='review-num']/b");
+        if (element != null) {
+            this.totalComment = Integer.parseInt(element.getTextContent());
         }
     }
 
-    private void setScore(Element jsoupElement) {
-        Elements select = jsoupElement.select(".comment-list b");
-        if (select.size() > 2) {
-            this.taste = Double.parseDouble(select.eq(0).text());
-            this.environment = Double.parseDouble(select.eq(1).text());
-            this.service = Double.parseDouble(select.eq(2).text());
+    private void setScore(HtmlElement htmlElement) {
+        List<HtmlElement> elements = (List<HtmlElement>) htmlElement.getByXPath("//span[class='comment-list']/b");
+        if (elements.size() > 2) {
+            this.taste = Double.parseDouble(elements.get(0).getTextContent());
+            this.environment = Double.parseDouble(elements.get(1).getTextContent());
+            this.service = Double.parseDouble(elements.get(2).getTextContent());
         }
     }
 
-    private void setTypeLocation(Element jsoupElement) {
-        Elements select = jsoupElement.select(".tag-addr .tag");
-        if (select.size() > 1) {
-            this.type = select.eq(0).text();
-            this.location = select.eq(1).text();
+    private void setTypeLocation(HtmlElement htmlElement) {
+        List<HtmlElement> elements = (List<HtmlElement>) htmlElement.getByXPath("//div[class='tag-addr']/a/span");
+        if (elements.size() > 2) {
+            this.type = elements.get(0).getTextContent();
+            this.location = elements.get(1).getTextContent();
         }
     }
 
-    private void setName(Element jsoupElement) {
-        Elements select = jsoupElement.select("h4");
-        if (select.size() > 0) {
-            this.name = select.text();
+    private void setName(HtmlElement htmlElement) {
+        HtmlElement element = htmlElement.getFirstByXPath("//h4");
+        if (element != null) {
+            this.name = element.getTextContent();
         }
     }
 
-    private void setId(Element jsoupElement) {
-        Elements select = jsoupElement.select(".tit > a");
-        if (select.size() > 0) {
-            this.id = select.attr("href").substring(6);
+    private void setId(HtmlElement htmlElement) {
+        HtmlElement element = htmlElement.getFirstByXPath("//div[class='tit]/a");
+        if (element != null) {
+            this.id = element.getAttribute("href").substring(6);
         }
     }
 
@@ -89,14 +90,14 @@ public class Shop implements Outputable {
 
     @Override
     public String output() {
-        return id + seperator +
-                name + seperator +
-                type + seperator +
-                location + seperator +
-                taste + seperator +
-                environment + seperator +
-                service + seperator +
-                totalComment + seperator +
+        return id + separator +
+                name + separator +
+                type + separator +
+                location + separator +
+                taste + separator +
+                environment + separator +
+                service + separator +
+                totalComment + separator +
                 avgPay;
     }
 
