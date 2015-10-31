@@ -19,7 +19,7 @@ public class ShopCrawler extends Crawler {
     }
 
     public static void main(String[] args) {
-        new ShopCrawler(new File("data/shanghai")).crawl("http://www.dianping.com/search/category/1/10");
+        new ShopCrawler(new File("data/shanghai")).crawl("http://www.dianping.com/search/category/1/10/p11");
     }
 
     @Override

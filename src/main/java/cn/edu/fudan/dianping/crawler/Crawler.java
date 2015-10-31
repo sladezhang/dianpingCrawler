@@ -23,10 +23,10 @@ public abstract class Crawler {
 
     public void crawl(String nextUrl) {
         String referUrl = null;
+        boolean error = false;
         do {
             long timeToSleep = 1;
             while (true) {
-                System.out.printf("fetch:%s, refer:%s\t", nextUrl, referUrl);
                 try {
                     Response response = connection(nextUrl, referUrl).execute();
                     Cookie.cookie(response.cookies());
@@ -34,10 +34,14 @@ public abstract class Crawler {
                     parseDocument(nextUrl, document);
                     referUrl = nextUrl;
                     nextUrl = nextUrl(nextUrl, document.select(nextUrlSelector));
-                    System.out.println("succeed!");
+                    if (error) {
+                        System.out.println("\n--------------------------");
+                        error = false;
+                    }
                     break;
                 } catch (IOException e) {
-                    System.out.println(e.getMessage());
+                    System.out.printf("fetch:%s\t%s\n", nextUrl, e.getMessage());
+                    error = true;
                     Cookie.clearCookie();
                     timeToSleep = sleep(timeToSleep);
                 }
@@ -67,12 +71,12 @@ public abstract class Crawler {
     }
 
     private long sleep(long time) {
+        long nextSleepTime = (long) (Math.log(time + 1) * (1 + Math.random()) / Math.log(3) * 20);
+        System.out.printf("sleep:%d\t", nextSleepTime);
         try {
             Thread.sleep(time * 1000);
         } catch (InterruptedException ignored) {
         }
-        long nextSleepTime = (long) (Math.log(time + 1) * (1 + Math.random()) / Math.log(3) * 20);
-        System.out.printf("sleep:%d\t", nextSleepTime);
         return nextSleepTime;
     }
 
