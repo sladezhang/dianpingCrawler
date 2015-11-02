@@ -18,12 +18,6 @@ public class ShopCrawler extends Crawler {
         this.outputDir = outputDir;
     }
 
-    public static void main(String[] args) {
-        System.setProperty("http.proxyHost", "127.0.0.1");
-        System.setProperty("http.proxyPort", "8087");
-        new ShopCrawler(new File("data/beijing")).crawl("http://www.dianping.com/search/category/2/10");
-    }
-
     @Override
     protected void parseDocument(String referURL, Document document) {
         for (Element shopElement : document.select("#shop-all-list > ul > li")) {
